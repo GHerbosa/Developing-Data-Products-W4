@@ -1,0 +1,75 @@
+---
+title: "Developing Data Products W4"
+author: "Gerald Herbosa"
+date: "8/16/2020"
+output: ioslides_presentation
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reproducible Pitch
+
+Product is a requirement for Developing Data Products Week 4. Anyone can access
+related documents that lead to the program by below codes. Application can be access through this link:
+
+https://gherbosa.shinyapps.io/mpgCarsData/
+https://gherbosa.shinyapps.io/mpgCarsPresent/
+
+## Overview
+
+A plot using shiny app will be created for a simple built in library mtcars. This was utilized for others to have grasp for the idea of the lessons tackled by not having trouble getting available data on internet. Plot involves different variables that can be get in the library like mpg.
+
+```{r}
+head(mtcars)
+```
+
+## User Interface Code
+
+```{r eruptions, echo=TRUE}
+library(shiny)
+shinyUI(fluidPage(
+  # Title of the Application
+  titlePanel("Cars Dataset - Miles per Gallon (mpg)"),
+  sidebarPanel(
+    selectInput("Variable", "Variable:", 
+                c("Cylinders" = "cyl",
+                  "Transmission" = "am",
+                  "Gears" = "gear"))
+  ),
+  mainPanel(
+    # Output: Caption text format ----
+    h3(textOutput("Caption")),
+    
+    # Output: Plot variable selected vs mpg ----
+    plotOutput("mpgPlot")
+  )
+))
+```
+
+## Server Related Codes
+
+```{r echo=TRUE, warning=FALSE, message=FALSE, eval=FALSE}
+
+library(shiny)
+library(plotly)
+
+data <- mtcars
+data$am <- factor(data$am, labels = c("Automatic", "Manual"))
+shinyServer(function(input, output) {
+  
+  formulaText <- reactive({
+    paste("mpg vs ", input$variable)
+  })
+  
+  output$caption <- renderText({
+    formulaText()
+  })
+  output$mpgPlot <- renderPlot({
+    ggplot(data, aes_string(y=input$variable, x="mpg")) + geom_point()
+  })
+  
+})
+```
